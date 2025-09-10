@@ -6,7 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PelangganRepository extends JpaRepository<Pelanggan, Long> {
-    // JpaRepository sudah menyediakan method seperti findAll(), findById(), save(),
-    // deleteById()
-    // Anda bisa menambahkan query kustom di sini jika diperlukan
 }

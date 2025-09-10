@@ -10,32 +10,28 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/pelanggan") // Base URL untuk semua endpoint di controller ini
+@RequestMapping("/api/pelanggan")
 public class PelangganController {
 
     @Autowired
     private PelangganService pelangganService;
 
-    // Endpoint untuk membuat pelanggan baru
     @PostMapping
     public Pelanggan createPelanggan(@RequestBody Pelanggan pelanggan) {
         return pelangganService.createOrUpdatePelanggan(pelanggan);
     }
 
-    // Endpoint untuk mendapatkan semua data pelanggan
     @GetMapping
     public List<Pelanggan> getAllPelanggan() {
         return pelangganService.getAllPelanggan();
     }
 
-    // Endpoint untuk mendapatkan pelanggan berdasarkan ID
     @GetMapping("/{id}")
     public ResponseEntity<Pelanggan> getPelangganById(@PathVariable Long id) {
         Optional<Pelanggan> pelanggan = pelangganService.getPelangganById(id);
         return pelanggan.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Endpoint untuk memperbarui data pelanggan
     @PutMapping("/{id}")
     public ResponseEntity<Pelanggan> updatePelanggan(@PathVariable Long id, @RequestBody Pelanggan pelangganDetails) {
         Optional<Pelanggan> pelangganOptional = pelangganService.getPelangganById(id);
@@ -51,7 +47,6 @@ public class PelangganController {
         }
     }
 
-    // Endpoint untuk menghapus pelanggan berdasarkan ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePelanggan(@PathVariable Long id) {
         if (pelangganService.getPelangganById(id).isPresent()) {

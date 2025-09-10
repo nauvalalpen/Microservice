@@ -8,10 +8,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-@Data // Anotasi Lombok untuk membuat getter, setter, dll. secara otomatis
-@NoArgsConstructor // Lombok: constructor tanpa argumen
-@AllArgsConstructor // Lombok: constructor dengan semua argumen
-@Entity // Menandakan kelas ini sebagai entitas JPA (tabel di database)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class Pelanggan {
 
     @Id
