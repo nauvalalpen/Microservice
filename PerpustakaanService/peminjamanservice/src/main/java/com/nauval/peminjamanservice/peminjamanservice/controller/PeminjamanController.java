@@ -26,4 +26,10 @@ public class PeminjamanController {
     public ResponseTemplateVO findById(@PathVariable Long id) {
         return peminjamanService.findById(id);
     }
+
+    // ENDPOINT BARU untuk komunikasi antar service
+    @GetMapping("/data/{id}")
+    public Peminjaman findPeminjamanDataById(@PathVariable Long id) {
+        return peminjamanService.findPeminjamanDataById(id);
+    }
 }

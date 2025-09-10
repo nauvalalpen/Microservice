@@ -22,7 +22,8 @@ public class PengembalianService {
 
     public Pengembalian save(Pengembalian pengembalian) {
         Peminjaman peminjaman = restTemplate.getForObject(
-                "http://PEMINJAMAN-SERVICE/api/peminjaman/" + pengembalian.getPeminjamanId(), Peminjaman.class);
+                "http://PEMINJAMAN-SERVICE/api/peminjaman/data/" + pengembalian.getPeminjamanId(),
+                Peminjaman.class);
 
         if (peminjaman == null) {
             throw new RuntimeException("Data Peminjaman tidak ditemukan dengan ID: " + pengembalian.getPeminjamanId());

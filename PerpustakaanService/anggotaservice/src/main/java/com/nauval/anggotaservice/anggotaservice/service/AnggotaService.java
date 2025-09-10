@@ -1,7 +1,7 @@
 package com.nauval.anggotaservice.anggotaservice.service;
 
-import com.nauval.anggotaservice.model.Anggota;
-import com.nauval.anggotaservice.repository.AnggotaRepository;
+import com.nauval.anggotaservice.anggotaservice.model.Anggota;
+import com.nauval.anggotaservice.anggotaservice.repository.AnggotaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;

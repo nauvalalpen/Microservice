@@ -1,4 +1,4 @@
-package com.nauval.anggotaservice.anggotaservice.Model;
+package com.nauval.anggotaservice.anggotaservice.model;
 
 import jakarta.persistence.*;
 import lombok.*;

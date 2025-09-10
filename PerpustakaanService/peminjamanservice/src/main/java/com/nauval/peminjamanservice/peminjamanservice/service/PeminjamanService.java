@@ -19,8 +19,8 @@ public class PeminjamanService {
 
     public Peminjaman save(Peminjaman peminjaman) {
         // Validasi ke service lain
-        restTemplate.getForObject("http://ANGGOTA-SERVICE/api/anggota/" + peminjaman.getAnggotaId(), Anggota.class);
-        restTemplate.getForObject("http://BUKU-SERVICE/api/buku/" + peminjaman.getBukuId(), Buku.class);
+        restTemplate.getForObject("http://anggotaservice/api/anggota/" + peminjaman.getAnggotaId(), Anggota.class);
+        restTemplate.getForObject("http://bukuservice/api/buku/" + peminjaman.getBukuId(), Buku.class);
         peminjaman.setTanggalPinjam(LocalDate.now());
         peminjaman.setTanggalKembali(LocalDate.now().plusDays(7));
         return peminjamanRepository.save(peminjaman);
@@ -30,9 +30,16 @@ public class PeminjamanService {
         Peminjaman peminjaman = peminjamanRepository.findById(id).orElse(null);
         if (peminjaman == null)
             return null;
-        Anggota anggota = restTemplate.getForObject("http://ANGGOTA-SERVICE/api/anggota/" + peminjaman.getAnggotaId(),
+        Anggota anggota = restTemplate.getForObject("http://anggotaservice/api/anggota/" + peminjaman.getAnggotaId(),
                 Anggota.class);
-        Buku buku = restTemplate.getForObject("http://BUKU-SERVICE/api/buku/" + peminjaman.getBukuId(), Buku.class);
+        Buku buku = restTemplate.getForObject("http://bukuservice/api/buku/" + peminjaman.getBukuId(), Buku.class);
         return new ResponseTemplateVO(peminjaman, anggota, buku);
+    }
+
+    // ... (di dalam kelas PeminjamanService)
+
+    // Method baru untuk mengambil data Peminjaman mentah saja
+    public Peminjaman findPeminjamanDataById(Long id) {
+        return peminjamanRepository.findById(id).orElse(null);
     }
 }
