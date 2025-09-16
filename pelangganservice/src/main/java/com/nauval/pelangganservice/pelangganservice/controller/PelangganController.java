@@ -56,4 +56,12 @@ public class PelangganController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    // ... (di dalam kelas PelangganController)
+
+    // TAMBAHKAN METHOD INI SEBAGAI TES
+    @GetMapping("/test")
+    public String testEndpoint() {
+        return "PELANGGAN CONTROLLER IS WORKING WITH LATEST CODE!";
+    }
 }

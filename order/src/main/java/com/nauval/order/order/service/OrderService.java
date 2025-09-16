@@ -104,39 +104,6 @@ public class OrderService {
         return vo;
     }
 
-    // public ResponseTemplate getOrderWithProdukById(Long id) {
-    // // 2. Buat objek ResponseTemplate untuk diisi
-    // ResponseTemplate vo = new ResponseTemplate();
-
-    // // 3. Ambil Order dari database dan tangani jika tidak ada
-    // Order order = orderRepository.findById(id)
-    // .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
-
-    // // 4. Panggil Product Service untuk mendapatkan detail produk
-    // // - URL diperbaiki (menambahkan "/")
-    // // - Parameter class diperbaiki (Produk.class)
-    // Produk produk = restTemplate.getForObject("http://localhost:8081/api/produk/"
-    // + order.getProdukId(),
-    // Produk.class);
-
-    // // 5. Panggil Pelanggan Service untuk mendapatkan detail pelanggan
-    // // - URL diperbaiki
-    // // - LOGIKA ID DIPERBAIKI (menggunakan getPelangganId())
-    // // - Parameter class diperbaiki
-    // Pelanggan pelanggan =
-    // restTemplate.getForObject("http://localhost:8082/api/pelanggan/" +
-    // order.getPelangganId(),
-    // Pelanggan.class);
-
-    // // 6. Set semua objek ke dalam ResponseTemplate
-    // vo.setOrder(order);
-    // vo.setProduk(produk);
-    // vo.setPelanggan(pelanggan);
-
-    // // 7. Kembalikan satu objek ResponseTemplate, bukan list
-    // return vo;
-    // }
-
     public Order createOrder(Order order) {
         if (order.getTanggal() == null || order.getTanggal().isEmpty()) {
             order.setTanggal(LocalDate.now().toString());
