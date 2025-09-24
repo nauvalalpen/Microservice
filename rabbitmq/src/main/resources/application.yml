@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: rabbitmq
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    template:
+      exchange: order.exchange
+    listener:
+      simple:
+        default-requeue-rejected: false
+
+  # UN-INDENT THIS ENTIRE BLOCK TO BE AT THE SAME LEVEL AS 'rabbitmq'
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: thomascharicco@gmail.com
+    # IMPORTANT SECURITY WARNING: Use an App Password from Google, not your real password.
+    # It's better to use an environment variable here.
+    password: nbbtcjscwcfhkwpp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  rabbitmq:
+    queue: order.queue
+    exchange: order.exchange
+    routing-key: order.routing.key
+
+  admin-email: admin-email-for-alerts@example.com
+
+logging:
+  level:
+    com.nauval.rabbitmq.rabbitmq: DEBUG
