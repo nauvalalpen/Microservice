@@ -27,4 +27,12 @@ public class AnggotaController {
     public List<Anggota> findAll() {
         return anggotaService.findAll();
     }
+
+    // === ADD THIS ENTIRE METHOD ===
+    @PutMapping("/{id}")
+    public Anggota update(@PathVariable Long id, @RequestBody Anggota anggota) {
+        // Set the ID from the URL path to ensure we update the correct record
+        anggota.setId(id);
+        return anggotaService.save(anggota);
+    }
 }

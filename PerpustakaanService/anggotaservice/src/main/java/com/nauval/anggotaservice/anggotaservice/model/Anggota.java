@@ -15,4 +15,7 @@ public class Anggota {
     private String nama;
     private String alamat;
     private String jenisKelamin;
+
+    // === ADD THIS LINE ===
+    private String email;
 }
