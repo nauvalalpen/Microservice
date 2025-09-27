@@ -8,38 +8,55 @@ import org.springframework.stereotype.Service;
 import com.nauval.peminjamanservice.peminjamanservice.vo.ResponseTemplateVO;
 import com.nauval.peminjamanservice.peminjamanservice.vo.Anggota;
 import com.nauval.peminjamanservice.peminjamanservice.vo.Buku;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import com.nauval.peminjamanservice.peminjamanservice.dto.PeminjamanNotificationDTO;
 import java.time.LocalDate;
+import org.springframework.beans.factory.annotation.Value; // === ADD THIS IMPORT ===
 
 @Service
 public class PeminjamanService {
 
-    // Using constructor injection is a best practice
     private final PeminjamanRepository peminjamanRepository;
     private final RestTemplate restTemplate;
-    private final EmailService emailService; // <-- INJECT THE NEW SERVICE
+    private final RabbitTemplate rabbitTemplate;
+
+    @Value("${app.rabbitmq.exchange}")
+    private String exchange;
+    @Value("${app.rabbitmq.routingkey}")
+    private String routingKey;
 
     @Autowired
     public PeminjamanService(PeminjamanRepository peminjamanRepository, RestTemplate restTemplate,
-            EmailService emailService) {
+            RabbitTemplate rabbitTemplate) {
         this.peminjamanRepository = peminjamanRepository;
         this.restTemplate = restTemplate;
-        this.emailService = emailService; // <-- ADD TO CONSTRUCTOR
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public Peminjaman save(Peminjaman peminjaman) {
-        // Step 1: Validate that Anggota and Buku exist (your existing code)
+        // Fetch Anggota and Buku (your existing code)
         Anggota anggota = restTemplate.getForObject("http://anggotaservice/api/anggota/" + peminjaman.getAnggotaId(),
                 Anggota.class);
         Buku buku = restTemplate.getForObject("http://bukuservice/api/buku/" + peminjaman.getBukuId(), Buku.class);
 
-        // Step 2: Set dates and save the loan (your existing code)
+        // Save the loan (your existing code)
         peminjaman.setTanggalPinjam(LocalDate.now());
         peminjaman.setTanggalKembali(LocalDate.now().plusDays(7));
         Peminjaman savedPeminjaman = peminjamanRepository.save(peminjaman);
 
-        // Step 3: Send the notification email
-        // We already fetched 'anggota' and 'buku' objects, so we can reuse them
-        emailService.sendPeminjamanNotification(savedPeminjaman, anggota, buku);
+        // --- NEW LOGIC: Send message to RabbitMQ ---
+        // 1. Create the DTO
+        PeminjamanNotificationDTO notificationDTO = new PeminjamanNotificationDTO(
+                savedPeminjaman.getId(),
+                anggota.getNama(),
+                anggota.getEmail(),
+                buku.getJudul(),
+                savedPeminjaman.getTanggalPinjam(),
+                savedPeminjaman.getTanggalKembali());
+
+        // 2. Send the message
+        rabbitTemplate.convertAndSend(exchange, routingKey, notificationDTO);
+        System.out.println("Peminjaman notification sent to RabbitMQ: " + notificationDTO);
 
         return savedPeminjaman;
     }
