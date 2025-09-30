@@ -34,7 +34,7 @@ public class PengembalianService {
                 pengembalian.getTanggalDikembalikan());
         int keterlambatan = daysBetween > 0 ? (int) daysBetween : 0;
         pengembalian.setTerlambat(keterlambatan);
-        double denda = keterlambatan * 500.0;
+        double denda = keterlambatan * 1000.0;
         pengembalian.setDenda(denda);
 
         return pengembalianRepository.save(pengembalian);
