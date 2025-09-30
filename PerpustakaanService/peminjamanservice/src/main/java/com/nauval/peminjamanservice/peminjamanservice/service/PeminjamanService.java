@@ -11,7 +11,7 @@ import com.nauval.peminjamanservice.peminjamanservice.vo.Buku;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import com.nauval.peminjamanservice.peminjamanservice.dto.PeminjamanNotificationDTO;
 import java.time.LocalDate;
-import org.springframework.beans.factory.annotation.Value; // === ADD THIS IMPORT ===
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class PeminjamanService {
@@ -39,13 +39,19 @@ public class PeminjamanService {
                 Anggota.class);
         Buku buku = restTemplate.getForObject("http://bukuservice/api/buku/" + peminjaman.getBukuId(), Buku.class);
 
-        // Save the loan (your existing code)
-        peminjaman.setTanggalPinjam(LocalDate.now());
-        peminjaman.setTanggalKembali(LocalDate.now().plusDays(7));
+        // === CHANGE STARTS HERE ===
+        // Validate that the user provided a loan date
+        if (peminjaman.getTanggalPinjam() == null) {
+            throw new IllegalArgumentException("Tanggal Pinjam must be provided!");
+        }
+
+        // Calculate the return date based on the user-provided loan date
+        peminjaman.setTanggalKembali(peminjaman.getTanggalPinjam().plusDays(7));
+        // === CHANGE ENDS HERE ===
+
         Peminjaman savedPeminjaman = peminjamanRepository.save(peminjaman);
 
-        // --- NEW LOGIC: Send message to RabbitMQ ---
-        // 1. Create the DTO
+        // --- RabbitMQ logic remains the same ---
         PeminjamanNotificationDTO notificationDTO = new PeminjamanNotificationDTO(
                 savedPeminjaman.getId(),
                 anggota.getNama(),
@@ -53,8 +59,6 @@ public class PeminjamanService {
                 buku.getJudul(),
                 savedPeminjaman.getTanggalPinjam(),
                 savedPeminjaman.getTanggalKembali());
-
-        // 2. Send the message
         rabbitTemplate.convertAndSend(exchange, routingKey, notificationDTO);
         System.out.println("Peminjaman notification sent to RabbitMQ: " + notificationDTO);
 
@@ -62,6 +66,7 @@ public class PeminjamanService {
     }
 
     public ResponseTemplateVO findById(Long id) {
+        // No changes needed here
         Peminjaman peminjaman = peminjamanRepository.findById(id).orElse(null);
         if (peminjaman == null)
             return null;
@@ -72,6 +77,7 @@ public class PeminjamanService {
     }
 
     public Peminjaman findPeminjamanDataById(Long id) {
+        // No changes needed here
         return peminjamanRepository.findById(id).orElse(null);
     }
 }
