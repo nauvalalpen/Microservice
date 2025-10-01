@@ -1,18 +1,23 @@
 package com.nauval.peminjamanservice.peminjamanservice.service;
 
-import org.springframework.web.client.RestTemplate;
+import com.nauval.peminjamanservice.peminjamanservice.dto.PeminjamanEventDTO;
 import com.nauval.peminjamanservice.peminjamanservice.model.Peminjaman;
 import com.nauval.peminjamanservice.peminjamanservice.repository.PeminjamanRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import com.nauval.peminjamanservice.peminjamanservice.vo.ResponseTemplateVO;
 import com.nauval.peminjamanservice.peminjamanservice.vo.Anggota;
 import com.nauval.peminjamanservice.peminjamanservice.vo.Buku;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import com.nauval.peminjamanservice.peminjamanservice.dto.PeminjamanNotificationDTO;
-import java.time.LocalDate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import java.time.LocalDate;
 
+/**
+ * Ini adalah Command Service dalam pola CQRS.
+ * Tugasnya HANYA untuk menangani operasi tulis (Create, Update, Delete).
+ * Setelah berhasil menyimpan data ke database SQL, ia akan menerbitkan
+ * sebuah event ke RabbitMQ.
+ */
 @Service
 public class PeminjamanService {
 
@@ -34,50 +39,39 @@ public class PeminjamanService {
     }
 
     public Peminjaman save(Peminjaman peminjaman) {
-        // Fetch Anggota and Buku (your existing code)
+        // 1. Validasi Anggota dan Buku dari service lain
         Anggota anggota = restTemplate.getForObject("http://anggotaservice/api/anggota/" + peminjaman.getAnggotaId(),
                 Anggota.class);
         Buku buku = restTemplate.getForObject("http://bukuservice/api/buku/" + peminjaman.getBukuId(), Buku.class);
 
-        // === CHANGE STARTS HERE ===
-        // Validate that the user provided a loan date
+        // 2. LOGIKA BARU: Validasi dan Kalkulasi Tanggal
+        // Memastikan pengguna mengirimkan tanggal pinjam dalam request body.
         if (peminjaman.getTanggalPinjam() == null) {
-            throw new IllegalArgumentException("Tanggal Pinjam must be provided!");
+            throw new IllegalArgumentException("Tanggal Pinjam harus diisi!");
         }
 
-        // Calculate the return date based on the user-provided loan date
+        // Menghitung tanggal kembali berdasarkan tanggal pinjam yang diberikan
+        // pengguna.
         peminjaman.setTanggalKembali(peminjaman.getTanggalPinjam().plusDays(7));
-        // === CHANGE ENDS HERE ===
 
+        // 3. Simpan data peminjaman ke database SQL (Write Database)
         Peminjaman savedPeminjaman = peminjamanRepository.save(peminjaman);
 
-        // --- RabbitMQ logic remains the same ---
-        PeminjamanNotificationDTO notificationDTO = new PeminjamanNotificationDTO(
+        // 4. Buat Event Data Transfer Object (DTO)
+        // DTO ini berisi semua data yang dibutuhkan oleh service lain (query dan
+        // notifikasi)
+        PeminjamanEventDTO eventDTO = new PeminjamanEventDTO(
                 savedPeminjaman.getId(),
                 anggota.getNama(),
                 anggota.getEmail(),
                 buku.getJudul(),
                 savedPeminjaman.getTanggalPinjam(),
                 savedPeminjaman.getTanggalKembali());
-        rabbitTemplate.convertAndSend(exchange, routingKey, notificationDTO);
-        System.out.println("Peminjaman notification sent to RabbitMQ: " + notificationDTO);
+
+        // 5. Kirim event ke RabbitMQ
+        rabbitTemplate.convertAndSend(exchange, routingKey, eventDTO);
+        System.out.println("Peminjaman CREATED event sent to RabbitMQ: " + eventDTO);
 
         return savedPeminjaman;
-    }
-
-    public ResponseTemplateVO findById(Long id) {
-        // No changes needed here
-        Peminjaman peminjaman = peminjamanRepository.findById(id).orElse(null);
-        if (peminjaman == null)
-            return null;
-        Anggota anggota = restTemplate.getForObject("http://anggotaservice/api/anggota/" + peminjaman.getAnggotaId(),
-                Anggota.class);
-        Buku buku = restTemplate.getForObject("http://bukuservice/api/buku/" + peminjaman.getBukuId(), Buku.class);
-        return new ResponseTemplateVO(peminjaman, anggota, buku);
-    }
-
-    public Peminjaman findPeminjamanDataById(Long id) {
-        // No changes needed here
-        return peminjamanRepository.findById(id).orElse(null);
     }
 }

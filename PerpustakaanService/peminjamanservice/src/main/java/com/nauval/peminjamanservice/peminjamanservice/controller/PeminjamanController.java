@@ -21,15 +21,4 @@ public class PeminjamanController {
     public Peminjaman save(@RequestBody Peminjaman peminjaman) {
         return peminjamanService.save(peminjaman);
     }
-
-    @GetMapping("/{id}")
-    public ResponseTemplateVO findById(@PathVariable Long id) {
-        return peminjamanService.findById(id);
-    }
-
-    // ENDPOINT BARU untuk komunikasi antar service
-    @GetMapping("/data/{id}")
-    public Peminjaman findPeminjamanDataById(@PathVariable Long id) {
-        return peminjamanService.findPeminjamanDataById(id);
-    }
 }

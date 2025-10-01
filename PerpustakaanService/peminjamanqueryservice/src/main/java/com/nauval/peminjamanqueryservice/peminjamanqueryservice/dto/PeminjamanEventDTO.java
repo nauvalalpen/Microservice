@@ -1,15 +1,12 @@
-package com.nauval.peminjamanservice.peminjamanservice.dto;
+package com.nauval.peminjamanqueryservice.peminjamanqueryservice.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+import lombok.*;
 import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PeminjamanNotificationDTO {
+public class PeminjamanEventDTO {
     private Long peminjamanId;
     private String anggotaNama;
     private String anggotaEmail;
