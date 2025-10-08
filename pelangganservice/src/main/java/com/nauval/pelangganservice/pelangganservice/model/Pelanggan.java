@@ -21,4 +21,5 @@ public class Pelanggan {
     private String kode;
     private String nama;
     private String alamat;
+    private String email;
 }

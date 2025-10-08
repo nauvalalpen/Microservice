@@ -2,7 +2,7 @@ package com.pengembalianservice.pengembalianservice.service;
 
 import com.pengembalianservice.pengembalianservice.model.Pengembalian;
 import com.pengembalianservice.pengembalianservice.repository.PengembalianRepository;
-import com.pengembalianservice.pengembalianservice.vo.Peminjaman;
+import com.pengembalianservice.pengembalianservice.vo.PeminjamanView;
 import com.pengembalianservice.pengembalianservice.vo.PeminjamanResponseTemplateVO;
 import com.pengembalianservice.pengembalianservice.vo.PengembalianResponseTemplateVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,19 +21,24 @@ public class PengembalianService {
     private RestTemplate restTemplate;
 
     public Pengembalian save(Pengembalian pengembalian) {
-        Peminjaman peminjaman = restTemplate.getForObject(
-                "http://PEMINJAMAN-SERVICE/api/peminjaman/data/" + pengembalian.getPeminjamanId(),
-                Peminjaman.class);
+        // === PERUBAHAN DI SINI ===
+        // Hapus tanda hubung dari nama service agar cocok dengan yang ada di Eureka
+        PeminjamanView peminjamanView = restTemplate.getForObject(
+                "http://PEMINJAMANQUERYSERVICE/api/peminjaman/" + pengembalian.getPeminjamanId(), // <-- NAMA DIPERBAIKI
+                PeminjamanView.class);
 
-        if (peminjaman == null) {
+        if (peminjamanView == null) {
             throw new RuntimeException("Data Peminjaman tidak ditemukan dengan ID: " + pengembalian.getPeminjamanId());
         }
 
+        // ... sisa logika Anda tidak perlu diubah ...
         pengembalian.setTanggalDikembalikan(LocalDate.now());
-        long daysBetween = ChronoUnit.DAYS.between(peminjaman.getTanggalKembali(),
+        long daysBetween = ChronoUnit.DAYS.between(peminjamanView.getTanggalKembali(),
                 pengembalian.getTanggalDikembalikan());
+
         int keterlambatan = daysBetween > 0 ? (int) daysBetween : 0;
         pengembalian.setTerlambat(keterlambatan);
+
         double denda = keterlambatan * 1000.0;
         pengembalian.setDenda(denda);
 

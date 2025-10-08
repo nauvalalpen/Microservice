@@ -22,6 +22,12 @@ spring:
             uri: lb://ORDER-SERVICE
             predicates:
               - Path=api/orders
+              - Method=POST,PUT,DELETE
+          - id: ORDER-QUERY-SERVICE
+            uri: lb://ORDER-QUERY-SERVICE
+            predicates:
+              - Path=/api/orders/**
+              - Method=GET
 
 eureka:
   client:
