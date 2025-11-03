@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class Students {
-    @JacksonXmlProperty(localName = "name", isAttribute = true)
+    @JacksonXmlProperty(isAttribute = true)
     private String name;
 
     @JsonValue

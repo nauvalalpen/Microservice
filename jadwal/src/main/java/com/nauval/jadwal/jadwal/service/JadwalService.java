@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 public class JadwalService implements InitializingBean {
 
-    // Map sekarang akan menggunakan KODE ALIAS sebagai kunci
+    // Map tetap berisi data mentah yang diparsing dari XML
     private Map<String, Teacher> teacherSchedulesByAlias = Collections.emptyMap();
 
     @Override
@@ -31,84 +31,46 @@ public class JadwalService implements InitializingBean {
 
         if (timetable != null && timetable.getTeachers() != null) {
             this.teacherSchedulesByAlias = timetable.getTeachers().stream()
-                    // PERUBAHAN #1: Gunakan KODE ALIAS sebagai kunci Map
                     .collect(Collectors.toMap(this::extractAlias, Function.identity()));
             System.out.println("Berhasil memuat jadwal untuk " + this.teacherSchedulesByAlias.size() + " dosen.");
         }
     }
 
-    /**
-     * Helper method untuk mengekstrak kode alias dari nama lengkap.
-     * Contoh: "AINIL MARDIAH-AINIL" -> "AINIL"
-     */
     private String extractAlias(Teacher teacher) {
         String fullName = teacher.getName();
         if (fullName != null && fullName.contains("-")) {
             return fullName.substring(fullName.lastIndexOf("-") + 1);
         }
-        return fullName; // Fallback jika tidak ada tanda strip
+        return fullName;
     }
 
-    /**
-     * Mengambil daftar semua KODE ALIAS dosen.
-     */
     public List<String> getAllTeacherAliases() {
         return this.teacherSchedulesByAlias.keySet().stream().sorted().collect(Collectors.toList());
     }
 
     /**
      * Mencari jadwal seorang dosen berdasarkan KODE ALIAS-nya.
+     * Method ini sekarang akan melakukan SEMUA logika pembersihan.
      */
     public Optional<Teacher> getScheduleByTeacherAlias(String alias) {
-        Teacher originalTeacher = this.teacherSchedulesByAlias.get(alias.toUpperCase()); // <-- Tambahkan toUpperCase
-                                                                                         // untuk konsistensi
+        Teacher originalTeacher = this.teacherSchedulesByAlias.get(alias.toUpperCase());
 
         if (originalTeacher == null) {
-            System.out.println("Dosen dengan alias '" + alias + "' tidak ditemukan di Map.");
             return Optional.empty();
         }
 
-        // Buat salinan objek Teacher
-        Teacher filteredTeacher = new Teacher();
-        filteredTeacher.setName(originalTeacher.getName());
-
-        // Filter hari dan jam
-        List<Day> filteredDays = originalTeacher.getDays().stream()
-                .map(day -> {
-                    Day filteredDay = new Day();
-                    filteredDay.setName(day.getName());
-
-                    // === PERBAIKI LOGIKA FILTER DI SINI ===
-                    // Kondisi yang lebih sederhana dan aman: Cek apakah activityDetail tidak null.
-                    List<Hour> nonEmptyHours = day.getHours().stream()
-                            .filter(hour -> hour.getActivityDetail() != null)
-                            .collect(Collectors.toList());
-
-                    // Jika ingin debug, tambahkan log ini:
-                    // System.out.println("Hari: " + day.getName() + ", Jam terisi: " +
-                    // nonEmptyHours.size() + " dari " + day.getHours().size());
-
-                    filteredDay.setHours(nonEmptyHours);
-                    return filteredDay;
-                })
-                // Hanya sertakan hari yang memiliki jadwal mengajar
-                .filter(day -> !day.getHours().isEmpty())
-                .collect(Collectors.toList());
-
-        filteredTeacher.setDays(filteredDays);
-
-        return Optional.of(filteredTeacher);
+        // Kita tidak perlu lagi membuat salinan, cukup kembalikan data asli
+        // karena filtering sekarang ada di controller atau bisa dilakukan di sini jika
+        // perlu
+        return Optional.of(originalTeacher);
     }
 
     /**
-     * METHOD BARU: Mencari jadwal seorang dosen pada hari tertentu.
+     * Mencari jadwal seorang dosen pada hari tertentu.
      */
     public Optional<Day> getScheduleByTeacherAliasAndDay(String alias, String dayName) {
-        // Panggil method yang sudah ada untuk mendapatkan jadwal lengkap (yang sudah
-        // difilter)
-        Optional<Teacher> teacherOpt = getScheduleByTeacherAlias(alias);
+        Optional<Teacher> teacherOpt = Optional.ofNullable(this.teacherSchedulesByAlias.get(alias.toUpperCase()));
 
-        // Jika dosen ditemukan, cari hari yang cocok (tidak case-sensitive)
         return teacherOpt.flatMap(teacher -> teacher.getDays().stream()
                 .filter(day -> day.getName().equalsIgnoreCase(dayName))
                 .findFirst());

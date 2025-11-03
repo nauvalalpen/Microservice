@@ -1,16 +1,16 @@
-package com.nauval.jadwal.jadwal.model; // Sesuaikan package Anda
+package com.nauval.jadwal.jadwal.model;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.Data;
 
 @Data
-public class ActivityTag {
+public class Activity {
     @JacksonXmlProperty(isAttribute = true)
-    private String name;
+    private Integer id;
 
     @JsonValue
-    public String getName() {
-        return name;
+    public Integer getId() {
+        return id;
     }
 }
