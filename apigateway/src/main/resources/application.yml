@@ -1,39 +1,40 @@
-## YAML Template.
----
 server:
-  port: 9000
+  port: 9000 # Port Gateway yang akan diakses dari luar
 
 spring:
   application:
     name: API-GATEWAY
   cloud:
     gateway:
-      mvc:
-        routes:
-          - id: PRODUK-SERVICE
-            uri: lb://PRODUK-SERVICE
-            predicates:
-              - Path=api/produk
-          - id: PELANGGAN-SERVICE
-            uri: lb://PELANGGAN-SERVICE
-            predicates:
-              - Path=api/pelanggan
-          - id: ORDER-SERVICE
-            uri: lb://ORDER-SERVICE
-            predicates:
-              - Path=api/orders
-              - Method=POST,PUT,DELETE
-          - id: ORDER-QUERY-SERVICE
-            uri: lb://ORDER-QUERY-SERVICE
-            predicates:
-              - Path=/api/orders/**
-              - Method=GET
+      # Saya ubah ke 'routes' standar, lebih umum dari 'mvc.routes'
+      routes:
+        - id: PRODUK-SERVICE
+          uri: lb://PRODUK-SERVICE
+          predicates:
+            - Path=/api/produk/**
+        - id: PELANGGAN-SERVICE
+          uri: lb://PELANGGAN-SERVICE
+          predicates:
+            - Path=/api/pelanggan/**
+        - id: ORDER-COMMAND-SERVICE # Id lebih spesifik
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/api/orders/**
+            - Method=POST,PUT,DELETE
+        - id: ORDER-QUERY-SERVICE
+          uri: lb://ORDER-QUERY-SERVICE
+          predicates:
+            - Path=/api/orders/**
+            - Method=GET
 
+# --- KONFIGURASI EUREKA UNTUK DOCKER ---
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
+    # Arahkan ke container Eureka
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka:8761/eureka/
   instance:
-    hostname: localhost
+    # Daftarkan service ini dengan alamat IP-nya
+    prefer-ip-address: true
