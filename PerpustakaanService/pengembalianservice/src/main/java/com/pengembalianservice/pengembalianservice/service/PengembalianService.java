@@ -24,7 +24,8 @@ public class PengembalianService {
         // === PERUBAHAN DI SINI ===
         // Hapus tanda hubung dari nama service agar cocok dengan yang ada di Eureka
         PeminjamanView peminjamanView = restTemplate.getForObject(
-                "http://PEMINJAMANQUERYSERVICE/api/peminjaman/" + pengembalian.getPeminjamanId(), // <-- NAMA DIPERBAIKI
+                "http://PEMINJAMANQUERYSERVICE/api/peminjaman/query/" + pengembalian.getPeminjamanId(), // <-- NAMA
+                                                                                                        // DIPERBAIKI
                 PeminjamanView.class);
 
         if (peminjamanView == null) {
