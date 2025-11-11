@@ -12,13 +12,24 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nauval.peminjamanservice.peminjamanservice.vo.ResponseTemplateVO;
 
 @RestController
-@RequestMapping("/api/peminjaman")
+// UBAH PATH DASAR DI SINI
+@RequestMapping("/api/peminjaman/command")
 public class PeminjamanController {
+
+    // Anotasi @Autowired pada field tidak direkomendasikan, lebih baik via
+    // constructor
+    private final PeminjamanService peminjamanService;
+
     @Autowired
-    private PeminjamanService peminjamanService;
+    public PeminjamanController(PeminjamanService peminjamanService) {
+        this.peminjamanService = peminjamanService;
+    }
 
     @PostMapping
     public Peminjaman save(@RequestBody Peminjaman peminjaman) {
         return peminjamanService.save(peminjaman);
     }
+
+    // CATATAN: Semua endpoint GET yang ada di sini sebaiknya dihapus
+    // karena service ini sekarang adalah Command Service.
 }

@@ -1,43 +1,50 @@
-## YAML Template.
----
 server:
-  port: 9006
+  port: 8080 # <-- PERBAIKAN: Ganti port ke 8080 (standar untuk gateway)
 
 spring:
   application:
-    name: API-GATEWAY
+    name: API-GATEWAY-PERPUSTAKAAN # <-- PERBAIKAN: Nama lebih deskriptif
   cloud:
     gateway:
-      mvc:
-        routes:
-          - id: anggotaservice
-            uri: lb://anggotaservice
-            predicates:
-              - Path=api/anggota/
-          - id: pelangganservice
-            uri: lb://bukuservice
-            predicates:
-              - Path=api/buku
-          - id: PEMINJAMAN-SERVICE
-            uri: lb://PEMINJAMAN-SERVICE
-            predicates:
-              - Path=api/peminjaman
-              - Method=POST,PUT,DELETE
-          - id: PENGEMBALIAN-SERVICE
-            uri: lb://PENGEMBALIAN-SERVICE
-            predicates:
-              - Path=api/pengembalian
-          - id: peminjamanqueryservice
-            uri: lb://peminjamanqueryservice
-            predicates:
-              - Path=/api/peminjaman/**
-              - Method=GET
+      # PERBAIKAN: Hapus 'mvc' agar menggunakan Gateway WebFlux modern
+      routes:
+        - id: anggotaservice
+          uri: lb://ANGGOTASERVICE # Gunakan nama service di Eureka (huruf besar)
+          predicates:
+            - Path=/api/anggota/** # Gunakan wildcard untuk mencakup semua sub-path
 
+        - id: bukuservice # Perbaiki ID
+          uri: lb://BUKUSERVICE
+          predicates:
+            - Path=/api/buku/**
+
+        # --- PERBAIKAN UTAMA DI SINI ---
+        # Route KHUSUS untuk Peminjaman COMMANDS
+        - id: peminjaman-command-service
+          uri: lb://PEMINJAMAN-SERVICE # Cocok dengan Eureka
+          predicates:
+            - Path=/api/peminjaman/command/** # Path spesifik untuk command
+            - Method=POST,PUT,DELETE
+
+        # Route KHUSUS untuk Peminjaman QUERIES
+        - id: peminjaman-query-service
+          uri: lb://PEMINJAMANQUERYSERVICE # Cocok dengan Eureka (tanpa tanda hubung)
+          predicates:
+            - Path=/api/peminjaman/query/** # Path spesifik untuk query
+            - Method=GET
+
+        - id: pengembalianservice
+          uri: lb://PENGEMBALIAN-SERVICE
+          predicates:
+            - Path=/api/pengembalian/**
+
+# --- KONFIGURASI EUREKA UNTUK DOCKER ---
 eureka:
   client:
-    register-with-eureka: true
-    fetch-registry: true
+    # register-with-eureka & fetch-registry sudah benar (true)
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      # Arahkan ke container Eureka, bukan localhost
+      defaultZone: http://eureka:8761/eureka/
   instance:
-    hostname: localhost
+    # Daftarkan service ini dengan alamat IP-nya di dalam jaringan Docker
+    prefer-ip-address: true

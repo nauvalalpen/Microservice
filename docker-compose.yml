@@ -1,21 +1,17 @@
 version: "3.8"
 
 services:
-  # 1. Service Discovery - Eureka Server
+  # ===================================================================
+  # == INFRASTRUKTUR BERSAMA (SHARED INFRASTRUCTURE)
+  # ===================================================================
   eureka:
-    build: ./servereureka
+    build: ./PerpustakaanService/eurekaperpustakaan # Asumsi Anda menggunakan Eureka dari proyek Perpustakaan
     container_name: eureka
     ports:
       - "8761:8761"
     networks:
-      - microservice-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+      - shared-network
 
-  # 2. Message Broker - RabbitMQ
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: my-rabbitmq
@@ -23,9 +19,8 @@ services:
       - "5672:5672"
       - "15672:15672"
     networks:
-      - microservice-network
+      - shared-network
 
-  # 3. Database NoSQL - MongoDB
   mongodb:
     image: mongo:latest
     container_name: my-mongodb
@@ -37,72 +32,38 @@ services:
     volumes:
       - mongodb_data:/data/db
     networks:
-      - microservice-network
+      - shared-network
 
-  # 4. Service Produk
+  # ===================================================================
+  # == LAYANAN PROYEK "ORDER"
+  # ===================================================================
   productservice:
     build: ./productservice
     container_name: produk
     depends_on:
       - eureka
-    environment:
-      SERVER_PORT: 8081
-      SPRING_APPLICATION_NAME: PRODUK-SERVICE
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
-      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
-      SPRING_DATASOURCE_URL: jdbc:h2:file:/app/data/produk;DB_CLOSE_DELAY=-1
-      SPRING_DATASOURCE_DRIVERCLASSNAME: org.h2.Driver
-      SPRING_DATASOURCE_USERNAME: sa
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_H2_CONSOLE_ENABLED: "true"
-    volumes:
-      - produk_data:/app/data
     networks:
-      - microservice-network
+      - shared-network
 
-  # 5. Service Pelanggan
   pelangganservice:
     build: ./pelangganservice
     container_name: pelanggan
     depends_on:
       - eureka
-    environment:
-      SERVER_PORT: 8082
-      SPRING_APPLICATION_NAME: PELANGGAN-SERVICE
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
-      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
-      SPRING_DATASOURCE_URL: jdbc:h2:file:/app/data/pelanggan;DB_CLOSE_DELAY=-1
-      SPRING_DATASOURCE_DRIVERCLASSNAME: org.h2.Driver
-      SPRING_DATASOURCE_USERNAME: sa
-      SPRING_DATASOURCE_PASSWORD: password
-      SPRING_H2_CONSOLE_ENABLED: "true"
-    volumes:
-      - pelanggan_data:/app/data
     networks:
-      - microservice-network
+      - shared-network
 
-  # 6. Service Order (Command)
   orderservice:
     build: ./order
-    container_name: order
+    container_name: order-command
     depends_on:
       - eureka
       - rabbitmq
       - productservice
       - pelangganservice
-    environment:
-      SERVER_PORT: 8084
-      SPRING_APPLICATION_NAME: ORDER-SERVICE
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
-      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
-      SPRING_RABBITMQ_HOST: my-rabbitmq
-      SPRING_DATASOURCE_URL: jdbc:h2:file:/app/data/order;DB_CLOSE_DELAY=-1
-    volumes:
-      - order_data:/app/data
     networks:
-      - microservice-network
+      - shared-network
 
-  # 7. Service Order Query
   orderqueryservice:
     build: ./orderqueryservice
     container_name: order-query
@@ -110,56 +71,108 @@ services:
       - eureka
       - rabbitmq
       - mongodb
-    environment:
-      SERVER_PORT: 8085
-      SPRING_APPLICATION_NAME: ORDER-QUERY-SERVICE
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
-      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
-      SPRING_RABBITMQ_HOST: my-rabbitmq
-      SPRING_DATA_MONGODB_URI: mongodb://admin:password@my-mongodb:27017/order_read_db?authSource=admin
     networks:
-      - microservice-network
+      - shared-network
 
-  # 8. Service Notifikasi
-  notificationservice:
+  # PERBAIKAN: Beri nama unik untuk notification service dari proyek Order
+  notification-order:
     build: ./notificationservice
-    container_name: notificationservice
+    container_name: notification-order
     depends_on:
       - eureka
       - rabbitmq
-    environment:
-      SERVER_PORT: 8086
-      SPRING_APPLICATION_NAME: NOTIFICATION-SERVICE
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
-      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
-      SPRING_RABBITMQ_HOST: my-rabbitmq
-      SPRING_MAIL_USERNAME: nauvalalpenperdana@gmail.com
-      SPRING_MAIL_PASSWORD: kkzrdwwplpydfxno
     networks:
-      - microservice-network
+      - shared-network
 
-  # 9. API Gateway
-  apigateway:
-    build: ./apigateway
-    container_name: gateway
-    ports:
-      - "9000:9000"
+  # ===================================================================
+  # == LAYANAN PROYEK "PERPUSTAKAAN"
+  # ===================================================================
+  anggotaservice:
+    build: ./PerpustakaanService/anggotaservice
+    container_name: anggota-service
     depends_on:
       - eureka
-    environment:
-      SERVER_PORT: 9000
-      SPRING_APPLICATION_NAME: API-GATEWAY
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
-      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
     networks:
-      - microservice-network
+      - shared-network
 
+  bukuservice:
+    build: ./PerpustakaanService/bukuservice
+    container_name: buku-service
+    depends_on:
+      - eureka
+    networks:
+      - shared-network
+
+  peminjamanservice:
+    build: ./PerpustakaanService/peminjamanservice
+    container_name: peminjaman-command
+    depends_on:
+      - eureka
+      - rabbitmq
+      - anggotaservice
+      - bukuservice
+    networks:
+      - shared-network
+
+  peminjamanqueryservice:
+    build: ./PerpustakaanService/peminjamanqueryservice
+    container_name: peminjaman-query
+    depends_on:
+      - eureka
+      - rabbitmq
+      - mongodb
+    networks:
+      - shared-network
+
+  pengembalianservice:
+    build: ./PerpustakaanService/pengembalianservice
+    container_name: pengembalian-service
+    depends_on:
+      - eureka
+      - peminjamanqueryservice
+    networks:
+      - shared-network
+
+  # PERBAIKAN: Beri nama unik untuk notification service dari proyek Perpustakaan
+  # Asumsi folder service ini juga bernama 'notificationservice' di dalam 'PerpustakaanService'
+  notification-perpustakaan:
+    build: ./PerpustakaanService/notificationservice # <-- Sesuaikan path ini
+    container_name: notification-perpustakaan
+    depends_on:
+      - eureka
+      - rabbitmq
+    networks:
+      - shared-network
+
+  # ===================================================================
+  # == API GATEWAYS (PINTU MASUK)
+  # ===================================================================
+  # PERBAIKAN: Dua gateway di port yang berbeda
+  apigateway-order:
+    build: ./apigateway # Asumsi ini adalah gateway untuk proyek Order
+    container_name: gateway-order
+    ports:
+      - "9000:9000" # Gateway untuk Order di port 9000
+    depends_on:
+      - eureka
+    networks:
+      - shared-network
+
+  apigateway-perpustakaan:
+    build: ./PerpustakaanService/api_gateway_perpustakaan
+    container_name: gateway-perpustakaan
+    ports:
+      - "8080:8080" # Gateway untuk Perpustakaan di port 8080
+    depends_on:
+      - eureka
+    networks:
+      - shared-network
+
+# Mendefinisikan jaringan bersama yang akan digunakan oleh semua service
+networks:
+  shared-network:
+    driver: bridge
+
+# Mendefinisikan volume untuk persistensi data MongoDB
 volumes:
   mongodb_data:
-  produk_data:
-  pelanggan_data:
-  order_data:
-
-networks:
-  microservice-network:
-    driver: bridge

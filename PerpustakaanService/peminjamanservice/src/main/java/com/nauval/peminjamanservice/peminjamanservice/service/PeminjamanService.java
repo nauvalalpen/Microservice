@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced; // <-- IMPORT BARU
 import java.time.LocalDate;
 
 /**
@@ -27,8 +28,8 @@ public class PeminjamanService {
 
     @Value("${app.rabbitmq.exchange}")
     private String exchange;
-    @Value("${app.rabbitmq.routingkey}")
-    private String routingKey;
+    @Value("${app.rabbitmq.routingkey.created}")
+    private String routingKeyCreated;
 
     @Autowired
     public PeminjamanService(PeminjamanRepository peminjamanRepository, RestTemplate restTemplate,
@@ -69,7 +70,7 @@ public class PeminjamanService {
                 savedPeminjaman.getTanggalKembali());
 
         // 5. Kirim event ke RabbitMQ
-        rabbitTemplate.convertAndSend(exchange, routingKey, eventDTO);
+        rabbitTemplate.convertAndSend(exchange, routingKeyCreated, eventDTO);
         System.out.println("Peminjaman CREATED event sent to RabbitMQ: " + eventDTO);
 
         return savedPeminjaman;
