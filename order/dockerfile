@@ -1,7 +1,9 @@
 FROM openjdk:17.0.1-jdk-oracle
+#telur, gula, tepung, ragi, susu, coklat
 
 # direktori
 WORKDIR /app
+#mangkok/loyang
 
 # copy jar file
 COPY target/*.jar app.jar
