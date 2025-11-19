@@ -1,0 +1,40 @@
+global:
+  scrape_interval: 15s # Seberapa sering Prometheus mengambil data metrik
+
+scrape_configs:
+  # Job #1: Untuk memonitor semua aplikasi Spring Boot
+  # Prometheus akan mencari metrik di path '/actuator/prometheus'
+  - job_name: "spring-micrometer"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets:
+          # --- Service dari Proyek "Order" ---
+          # Gunakan format '<container_name>:<port_internal>'
+          - "produk:8081"
+          - "pelanggan:8082"
+          - "order-command:8084"
+          - "order-query:8085"
+          - "notification-order:8086"
+          - "gateway-order:9000"
+
+          # --- Service dari Proyek "Perpustakaan" ---
+          - "anggota-service:9001" # Sesuaikan port jika berbeda
+          - "buku-service:9002" # Sesuaikan port jika berbeda
+          - "peminjaman-command:9003" # Sesuaikan port jika berbeda
+          - "peminjaman-query:9007" # Sesuaikan port jika berbeda
+          - "pengembalian-service:9004" # Sesuaikan port jika berbeda
+          - "notification-perpustakaan:9005" # Sesuaikan port jika berbeda
+          - "gateway-perpustakaan:8080" # Sesuaikan port jika berbeda
+
+          # Anda juga bisa memonitor Eureka jika ia memiliki Actuator
+          - "eureka:8761"
+
+  # Job #2: Untuk memonitor RabbitMQ melalui exporter-nya
+  - job_name: "rabbitmq"
+    static_configs:
+      - targets: ["rabbitmq-exporter:9419"]
+
+  # Job #3: Untuk memonitor MongoDB melalui exporter-nya
+  - job_name: "mongodb"
+    static_configs:
+      - targets: ["mongodb-exporter:9216"]

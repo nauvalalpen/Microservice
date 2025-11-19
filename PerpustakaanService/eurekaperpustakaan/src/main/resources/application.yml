@@ -17,3 +17,13 @@ logging:
   level:
     com.netflix.eureka: OFF
     com.netflix.discovery: OFF
+
+# --- Konfigurasi Actuator & Prometheus ---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # Tanda kutip penting di YAML
+  endpoint:
+    health:
+      show-details: always

@@ -48,3 +48,13 @@ eureka:
   instance:
     # Daftarkan service ini dengan alamat IP-nya di dalam jaringan Docker
     prefer-ip-address: true
+
+# --- Konfigurasi Actuator & Prometheus ---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # Tanda kutip penting di YAML
+  endpoint:
+    health:
+      show-details: always

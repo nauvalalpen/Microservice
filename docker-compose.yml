@@ -34,6 +34,56 @@ services:
     networks:
       - shared-network
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090" # Port untuk UI Prometheus
+    volumes:
+      # Mount file konfigurasi prometheus.yml ke dalam container
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - shared-network # Pastikan terhubung ke jaringan yang sama
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000" # Port untuk UI Grafana
+    depends_on:
+      - prometheus
+    networks:
+      - shared-network
+
+  rabbitmq-exporter:
+    image: kbudde/rabbitmq-exporter:latest
+    container_name: rabbitmq-exporter
+    environment:
+      # Beritahu exporter di mana menemukan RabbitMQ
+      RABBIT_URL: "http://my-rabbitmq:15672"
+      # Sesuaikan user/pass jika Anda mengubahnya di service rabbitmq
+      RABBIT_USER: "guest"
+      RABBIT_PASS: "guest"
+    ports:
+      - "9419:9419" # Port di mana exporter akan menyajikan metrik
+    networks:
+      - shared-network # Samakan dengan jaringan Anda
+    depends_on:
+      - rabbitmq
+
+  mongodb-exporter:
+    image: percona/mongodb_exporter:0.32
+    container_name: mongodb-exporter
+    environment:
+      # Beritahu exporter di mana menemukan MongoDB
+      MONGODB_URI: "mongodb://admin:password@mongodb:27017/admin"
+    ports:
+      - "9216:9216" # Port di mana exporter akan menyajikan metrik
+    networks:
+      - shared-network # Samakan dengan jaringan Anda
+    depends_on:
+      - mongodb
+
   # ===================================================================
   # == LAYANAN PROYEK "ORDER"
   # ===================================================================
