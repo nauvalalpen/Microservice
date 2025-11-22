@@ -52,6 +52,10 @@ kind: Service
 metadata:
   name: peminjamanqueryservice # Service DNS akan bernama 'peminjamanqueryservice'
   namespace: perpustakaan-ns
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/actuator/prometheus"
+    prometheus.io/port: "9007" # Port yang diekspos oleh service ini
 spec:
   selector:
     app: peminjaman-query
