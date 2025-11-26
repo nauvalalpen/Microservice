@@ -5,7 +5,7 @@ metadata:
   name: peminjaman-command-deployment # Nama unik untuk deployment ini
   namespace: perpustakaan-ns
 spec:
-  replicas: 2 # Kita mulai dengan 1 replika
+  replicas: 1 # Kita mulai dengan 1 replika
   selector:
     matchLabels:
       app: peminjaman-command # Selector harus cocok dengan label di template

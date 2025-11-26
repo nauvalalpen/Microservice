@@ -5,7 +5,7 @@ metadata:
   name: peminjaman-query-deployment
   namespace: perpustakaan-ns
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: peminjaman-query
