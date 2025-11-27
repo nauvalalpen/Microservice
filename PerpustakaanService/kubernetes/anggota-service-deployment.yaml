@@ -29,6 +29,10 @@ kind: Service
 metadata:
   name: anggota-service # Service DNS akan bernama 'anggota-service'
   namespace: perpustakaan-ns
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/actuator/prometheus"
+    prometheus.io/port: "9001" # Port yang diekspos oleh service ini
 spec:
   selector:
     app: anggota-service

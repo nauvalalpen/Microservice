@@ -40,6 +40,10 @@ kind: Service
 metadata:
   name: notification-service # Service DNS akan bernama 'notification-service'
   namespace: perpustakaan-ns
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/actuator/prometheus"
+    prometheus.io/port: "9005" # Port yang diekspos oleh service ini
 spec:
   selector:
     app: notification-service

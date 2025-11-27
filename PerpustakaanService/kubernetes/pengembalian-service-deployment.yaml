@@ -29,6 +29,10 @@ kind: Service
 metadata:
   name: pengembalian-service # Service DNS akan bernama 'pengembalian-service'
   namespace: perpustakaan-ns
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/actuator/prometheus"
+    prometheus.io/port: "9004" # Port yang diekspos oleh service ini
 spec:
   selector:
     app: pengembalian-service
