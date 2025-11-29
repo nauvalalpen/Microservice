@@ -2,22 +2,21 @@ package com.nauval.peminjamanservice.peminjamanservice.controller;
 
 import com.nauval.peminjamanservice.peminjamanservice.model.Peminjaman;
 import com.nauval.peminjamanservice.peminjamanservice.service.PeminjamanService;
+import org.slf4j.Logger; // 1. Import Logger
+import org.slf4j.LoggerFactory; // 2. Import LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.nauval.peminjamanservice.peminjamanservice.vo.ResponseTemplateVO;
 
 @RestController
-// UBAH PATH DASAR DI SINI
 @RequestMapping("/api/peminjaman/command")
 public class PeminjamanController {
 
-    // Anotasi @Autowired pada field tidak direkomendasikan, lebih baik via
-    // constructor
+    // 3. Inisialisasi Logger
+    private static final Logger log = LoggerFactory.getLogger(PeminjamanController.class);
+
     private final PeminjamanService peminjamanService;
 
     @Autowired
@@ -27,9 +26,17 @@ public class PeminjamanController {
 
     @PostMapping
     public Peminjaman save(@RequestBody Peminjaman peminjaman) {
-        return peminjamanService.save(peminjaman);
-    }
+        // 4. Log saat request masuk (Menangkap siapa pinjam apa)
+        log.info("Menerima REQUEST PEMINJAMAN. AnggotaID: {}, BukuID: {}, Tanggal: {}",
+                peminjaman.getAnggotaId(),
+                peminjaman.getBukuId(),
+                peminjaman.getTanggalPinjam());
 
-    // CATATAN: Semua endpoint GET yang ada di sini sebaiknya dihapus
-    // karena service ini sekarang adalah Command Service.
+        Peminjaman savedPeminjaman = peminjamanService.save(peminjaman);
+
+        // 5. Log saat sukses (Menangkap ID transaksi yang terbentuk)
+        log.info("SUKSES memproses peminjaman. ID Transaksi: {}", savedPeminjaman.getId());
+
+        return savedPeminjaman;
+    }
 }
