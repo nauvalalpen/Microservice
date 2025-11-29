@@ -2,35 +2,45 @@ package com.nauval.bukuservice.bukuservice.controller;
 
 import com.nauval.bukuservice.bukuservice.model.Buku;
 import com.nauval.bukuservice.bukuservice.service.BukuService;
+import org.slf4j.Logger; // 1. Import Logger
+import org.slf4j.LoggerFactory; // 2. Import LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/buku") // Menggunakan /api/buku sebagai base path
+@RequestMapping("/api/buku")
 public class BukuController {
 
-    // 2. INJECT BUKUSERVICE, BUKAN BUKU
+    // 3. Inisialisasi Logger
+    private static final Logger log = LoggerFactory.getLogger(BukuController.class);
+
     @Autowired
     private BukuService bukuService;
 
-    // 4. PERBAIKI ANOTASI DAN PANGGILAN METHOD
     @PostMapping
     public Buku save(@RequestBody Buku buku) {
-        // Panggil method dari variabel 'bukuService'
-        return bukuService.save(buku);
+        // 4. Log saat menerima request POST
+        log.info("Menerima request POST buku baru. Judul: {}, Pengarang: {}", buku.getJudul(), buku.getPengarang());
+
+        Buku savedBuku = bukuService.save(buku);
+
+        // 5. Log saat sukses disimpan
+        log.info("Sukses menyimpan buku dengan ID: {}", savedBuku.getId());
+
+        return savedBuku;
     }
 
     @GetMapping("/{id}")
     public Buku findById(@PathVariable("id") Long id) {
-        // Panggil method dari variabel 'bukuService'
+        log.info("Request GET buku berdasarkan ID: {}", id);
         return bukuService.findById(id);
     }
 
     @GetMapping
     public List<Buku> findAll() {
-        // Panggil method dari variabel 'bukuService'
+        log.info("Request GET semua data buku");
         return bukuService.findAll();
     }
 }
