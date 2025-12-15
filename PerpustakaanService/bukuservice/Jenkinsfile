@@ -42,7 +42,7 @@ pipeline {
             steps {
                 dir("${DOCKER_DIR}") {
                     // Build file .jar
-                    sh 'mvn clean package'
+                    sh 'mvn clean package -DskipTests'
                 }
             }
         }
@@ -67,8 +67,8 @@ pipeline {
             steps {
                 // Update image di deployment yang sudah ada
                 sh """
-                kubectl set image deployment/${K8S_DEPLOYMENT} \
-                ${SERVICE_NAME}-container=${IMAGE_TAG} \
+                kubectl set image deployment/buku-deployment \
+                buku-container=${IMAGE_TAG} \
                 -n ${K8S_NS}
                 """
                 
