@@ -17,7 +17,7 @@ spec:
       containers:
         - name: peminjaman-command-container
           image: localhost:5000/peminjaman-service:1.0 # Nama image Docker Anda
-          imagePullPolicy: IfNotPresent # Penting: Gunakan image lokal jika ada
+          imagePullPolicy: Always # Penting: Gunakan image lokal jika ada
           ports:
             - containerPort: 9003 # Port internal aplikasi
           env:
