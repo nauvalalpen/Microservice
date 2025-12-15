@@ -17,7 +17,7 @@ spec:
       containers:
         - name: anggota-container
           image: localhost:5000/anggota-service:1.0 # Nama image Docker Anda
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 9001 # Port internal aplikasi
           env:
