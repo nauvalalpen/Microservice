@@ -17,7 +17,7 @@ spec:
       containers:
         - name: buku-container
           image: localhost:5000/buku-service:1.0 # Nama image Docker Anda
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: 9002 # Port internal aplikasi
           env:

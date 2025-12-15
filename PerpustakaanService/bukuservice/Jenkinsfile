@@ -12,7 +12,7 @@ pipeline {
         // Namespace Kubernetes
         K8S_NS = 'perpustakaan-ns'
         // Registry Image
-        IMAGE_TAG = "localhost:5000/${SERVICE_NAME}:${BUILD_NUMBER}"
+        IMAGE_TAG = "localhost:5000/${SERVICE_NAME}:1.0"
     }
 
     tools {
