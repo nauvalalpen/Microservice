@@ -58,7 +58,7 @@ public class PengembalianService {
         // Pastikan peminjaman-service memiliki endpoint ini yang mengembalikan
         // PeminjamanResponseTemplateVO
         PeminjamanResponseTemplateVO peminjamanDetail = restTemplate.getForObject(
-                "http://PEMINJAMAN-SERVICE/api/peminjaman/" + pengembalian.getPeminjamanId(),
+                "http://PEMINJAMANQUERYSERVICE/api/peminjaman/" + pengembalian.getPeminjamanId(),
                 PeminjamanResponseTemplateVO.class);
 
         // 3. Gabungkan hasilnya ke dalam satu objek respons
