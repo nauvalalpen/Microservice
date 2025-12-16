@@ -48,24 +48,29 @@ public class PengembalianService {
 
     // --- METHOD BARU YANG ANDA BUTUHKAN ---
     public PengembalianResponseTemplateVO findDetailById(Long id) {
-        // 1. Cari data pengembalian dari database lokal
         Pengembalian pengembalian = pengembalianRepository.findById(id).orElse(null);
         if (pengembalian == null) {
             return null;
         }
 
-        // 2. Panggil peminjaman-service untuk mendapatkan detail lengkap peminjaman
-        // Pastikan peminjaman-service memiliki endpoint ini yang mengembalikan
-        // PeminjamanResponseTemplateVO
-        PeminjamanResponseTemplateVO peminjamanDetail = restTemplate.getForObject(
-                "http://PEMINJAMANQUERYSERVICE/api/peminjaman/query/" + pengembalian.getPeminjamanId(),
-                PeminjamanResponseTemplateVO.class);
+        try {
+            // === PERBAIKAN DI SINI ===
+            // Gunakan PeminjamanView.class, BUKAN PeminjamanResponseTemplateVO.class
+            PeminjamanView peminjamanDetail = restTemplate.getForObject(
+                    "http://PEMINJAMANQUERYSERVICE/api/peminjaman/query/" + pengembalian.getPeminjamanId(),
+                    PeminjamanView.class);
 
-        // 3. Gabungkan hasilnya ke dalam satu objek respons
-        PengembalianResponseTemplateVO response = new PengembalianResponseTemplateVO();
-        response.setPengembalian(pengembalian);
-        response.setPeminjamanDetail(peminjamanDetail);
+            PengembalianResponseTemplateVO response = new PengembalianResponseTemplateVO();
+            response.setPengembalian(pengembalian);
 
-        return response;
+            // Masukkan data PeminjamanView ke response
+            response.setPeminjamanDetail(peminjamanDetail);
+
+            return response;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

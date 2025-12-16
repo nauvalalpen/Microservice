@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PengembalianResponseTemplateVO {
     private Pengembalian pengembalian;
-    private PeminjamanResponseTemplateVO peminjamanDetail; // Detail peminjaman yang terkait
+    private PeminjamanView peminjamanDetail; // Detail peminjaman yang terkait
 }
