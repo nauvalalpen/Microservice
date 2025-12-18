@@ -20,7 +20,7 @@ pipeline {
         CONTAINER_NAME = 'peminjaman-query-container'
         
         // Tag Image (Tetap 1.0 agar hemat storage & overwrite)
-        IMAGE_TAG = "localhost:5000/${SERVICE_NAME}:1.0"
+        IMAGE_TAG = "localhost:5000/${SERVICE_NAME}:1.1"
     }
 
     tools {
