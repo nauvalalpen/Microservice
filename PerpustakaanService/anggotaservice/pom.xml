@@ -9,10 +9,10 @@
         <version>3.3.0</version>
         <relativePath/>
     </parent>
-    <groupId>com.nauval.bukuservice</groupId>
-    <artifactId>bukuservice</artifactId>
+    <groupId>com.nauval.anggotaservice</groupId>
+    <artifactId>anggotaservice</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>bukuservice</name>
+    <name>anggotaservice</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>

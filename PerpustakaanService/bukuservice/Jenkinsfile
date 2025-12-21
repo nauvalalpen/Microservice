@@ -77,4 +77,10 @@ pipeline {
             }
         }
     }
+        // Bersihkan image sampah
+    post {
+        always {
+            sh 'docker image prune -f'
+        }
+    }
 }
