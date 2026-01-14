@@ -1,6 +1,6 @@
 # Langkah 3: Implementasi Centralized Logging (ELK Stack)
 
-Kami menggunakan **Elasticsearch, Logstash, Kibana (ELK)** ditambah **Filebeat** sebagai log shipper.
+Menggunakan **Elasticsearch, Logstash, Kibana (ELK)** ditambah **Filebeat** sebagai log shipper.
 
 ## Arsitektur Logging
 

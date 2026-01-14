@@ -1,6 +1,6 @@
 # Langkah 2: Implementasi Monitoring (Prometheus & Grafana)
 
-Kami menggunakan **Prometheus** untuk scraping metrik dan **Grafana** untuk visualisasi dashboard.
+Menggunakan **Prometheus** untuk scraping metrik dan **Grafana** untuk visualisasi dashboard.
 
 ## Konfigurasi
 
